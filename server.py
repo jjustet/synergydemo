@@ -63,13 +63,15 @@ sockets = Sockets(app)
 try:
     login = os.environ["OVLOGIN"]
     password = os.environ["OVPASSWD"]
+    ip = os.environ["OVIP"]
+    app_port = os.environ["OVAPPPORT"]
 except KeyError:
-    print("Please set OVLOGIN and OVPASSWD environment variable")
+    print("Please set OVLOGIN, OVPASSWD, OVIP and OVAPPPORT environment variable")
     sys.exit(1)
 
 
 config = {
-    "ip": "10.6.25.10",
+    "ip": ip,
     "credentials": {
         "userName": login,
         "password": password
@@ -256,11 +258,7 @@ def available():
     # Get templates
     templates = [
         oneview_client.server_profile_templates.get_by_name(
-            'SY480 - Boot iPXE'),
-        oneview_client.server_profile_templates.get_by_name(
-            'SY480FC - Boot iPXE'),
-        oneview_client.server_profile_templates.get_by_name(
-            'SY620 - Boot iPXE')]
+            ' SY480SAS - Docker Engine')]
     # Craft required data
     data2print = []
     for server in server_hardware_all:
@@ -308,11 +306,7 @@ def availablexml():
     # Get templates
     templates = \
         [oneview_client.server_profile_templates.get_by_name(
-            'SY480 - Boot iPXE'),
-        oneview_client.server_profile_templates.get_by_name(
-            'SY480FC - Boot iPXE'),
-            oneview_client.server_profile_templates.get_by_name(
-            'Boot iPXE SY620')]
+            ' SY480SAS - Docker Engine')]
     # Craft required data
     data2print = []
     for server in server_hardware_all:
@@ -594,14 +588,14 @@ def delete_profile(data):
 
 def applying_profile(data):
     server = oneview_client.server_hardware.get(data['uuid'])
-    templatename = 'SY' + data['type'] + ' - Boot iPXE'
+    templatename = 'SY480 - Docker Engine'
     template = oneview_client.server_profile_templates.get_by_name(
         templatename)
     # Get new profile
     profile = oneview_client.server_profile_templates.get_new_profile(
         template['uri'])
 
-    name = 'iPXE-' + str(uuid.uuid4()).split('-')[-1]
+    name = 'docker-' + str(uuid.uuid4()).split('-')[-1]
     profile['name'] = name
     profile['serverHardwareUri'] = server['uri']
     try:
@@ -622,7 +616,7 @@ def get_deployed_servers():
            server['state'] != 'Applying profile':
             profile = oneview_client.server_profiles.get(
                 server['serverProfileUri'])
-            if 'iPXE' in profile["name"]:
+            if 'docker-' in profile["name"]:
                 macaddress = get_mac(profile)
                 filename = "flags/" + macaddress
                 if os.path.exists(filename):
@@ -649,5 +643,5 @@ def get_deployed_servers():
 if __name__ == "__main__":
     from gevent import pywsgi
     from geventwebsocket.handler import WebSocketHandler
-    server = pywsgi.WSGIServer(('', 5000), app, handler_class=WebSocketHandler)
+    server = pywsgi.WSGIServer(('', app_port), app, handler_class=WebSocketHandler)
     server.serve_forever()
