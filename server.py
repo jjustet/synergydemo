@@ -361,7 +361,7 @@ def ready2deploy():
         if server['serverProfileUri'] is not None:
             profile = oneview_client.server_profiles.get(
                 server['serverProfileUri'])
-            if 'iPXE' in profile["name"]:
+            if 'docker-' in profile["name"]:
                 macaddress = get_mac(profile)
                 data2print.append({
                     'shortModel': server['shortModel'],
