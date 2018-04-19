@@ -221,7 +221,7 @@ def status(ws):
             if server['serverProfileUri'] is not None:
                 profile = oneview_client.server_profiles.get(
                     server['serverProfileUri'])
-                if 'iPXE' in profile["name"]:
+                if 'docker-' in profile["name"]:
                     data = define_status(server, profile)
                     ws.send(json.dumps(data))
         time.sleep(5)
@@ -274,17 +274,6 @@ def available():
         except TypeError:
             pass
 
-        try:
-            available620s = \
-                oneview_client.server_profiles.get_available_servers(
-                    serverHardwareTypeUri=templates[1]
-                                                   ['serverHardwareTypeUri'])
-            for srv in available620s:
-                if server['uri'] == srv['serverHardwareUri']:
-                    applicable_profile = '480FC'
-        except TypeError:
-            pass
-
         data2print.append({
             'shortModel': server['shortModel'],
             'serverProfileUri': server['serverProfileUri'],
@@ -322,17 +311,6 @@ def availablexml():
         except TypeError:
             pass
 
-        try:
-            available620s = \
-                oneview_client.server_profiles.get_available_servers(
-                    serverHardwareTypeUri=templates[1]
-                                                   ['serverHardwareTypeUri'])
-            for srv in available620s:
-                if server['uri'] == srv['serverHardwareUri']:
-                    applicable_profile = '480FC'
-        except TypeError:
-            pass
-
         data2print.append({
             'shortModel': server['shortModel'],
             'serverProfileUri': server['serverProfileUri'],
@@ -357,7 +335,7 @@ def ready2deploy_csa(uuid):
     if server['serverProfileUri'] is not None:
         profile = oneview_client.server_profiles.get(
             server['serverProfileUri'])
-        if 'iPXE' in profile["name"]:
+        if 'docker-' in profile["name"]:
             macaddress = get_mac(profile)
             data2print.append({
                 'shortModel': server['shortModel'],
